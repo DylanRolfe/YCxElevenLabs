@@ -41,6 +41,11 @@ function findResultArray(output: unknown): Json[] {
   for (const key of ["data", "results", "profiles", "people", "items"]) {
     if (Array.isArray(obj[key])) return obj[key] as Json[];
   }
+  // nlp-search/run nests people under output.results.people (checked 2026-11-22).
+  if (obj.results && typeof obj.results === "object") {
+    const nested = findResultArray(obj.results);
+    if (nested.length) return nested;
+  }
   for (const value of Object.values(obj)) {
     if (Array.isArray(value) && value.length && typeof value[0] === "object") {
       return value as Json[];

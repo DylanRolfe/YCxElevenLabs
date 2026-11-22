@@ -24,8 +24,9 @@ Rules:
 - Say plainly that the link opens a short conversation with an AI assistant.
 - Only use facts from the seller pitch and the prospect details. Never invent
   prices, customers, numbers or guarantees.
-- Start with a greeting using the contact's first name. Do not add a signature;
-  the sender name is appended automatically.`;
+- Start with a greeting using the contact's first name. Do not add a signature,
+  sign-off or name at the end (no "Thanks, ..."); the sender name is appended
+  automatically. End the body on the last sentence.`;
 
 export function userPrompt(lead: Lead): string {
   return [

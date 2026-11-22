@@ -26,8 +26,13 @@ console.log("\nRehearsal Rep key check\n");
 await check("Supabase", ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"], async () => {
   const key = env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const sb = createClient(env.NEXT_PUBLIC_SUPABASE_URL, key, { auth: { persistSession: false } });
+  if (/\/rest\/v1/.test(env.NEXT_PUBLIC_SUPABASE_URL)) {
+    throw new Error("URL must be just https://<ref>.supabase.co (remove /rest/v1/)");
+  }
   const { error, count } = await sb.from("leads").select("*", { count: "exact", head: true });
-  if (error) throw new Error(error.message + " (did you run supabase/schema.sql?)");
+  if (error || count == null) {
+    throw new Error((error?.message || "no response") + " (did you run supabase/schema.sql?)");
+  }
   const local = env.NEXT_PUBLIC_SUPABASE_URL.includes("localhost") ? " [LOCAL MOCK]" : "";
   return `leads table reachable, ${count ?? "?"} rows${local}`;
 }, "app will not start");
