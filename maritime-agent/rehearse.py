@@ -200,6 +200,23 @@ def _run_kwargs() -> dict:
     return kwargs
 
 
+def _first_edsl_error(results) -> str:
+    """EDSL swallows model errors into task_history; surface the first one."""
+    try:
+        for entry in results.task_history.exceptions:
+            for items in entry.values():
+                for item in items:
+                    exc = getattr(item, "exception", item)
+                    return f"{type(exc).__name__}: {str(exc)[:300]}"
+    except Exception as e:  # noqa: BLE001
+        return f"could not read EDSL errors ({e})"
+    return (
+        f"unknown (model={_model()}, local_inference="
+        f"{_run_kwargs().get('disable_remote_inference', False)}, "
+        f"deepseek_key={'set' if os.getenv('DEEPSEEK_API_KEY') else 'missing'})"
+    )
+
+
 def _edsl_panel(lead: dict, personas: list[dict]) -> dict:
     from edsl import (
         Agent,
@@ -252,9 +269,12 @@ def _edsl_panel(lead: dict, personas: list[dict]) -> dict:
         .by(model)
         .run(**run_kwargs)
     )
-    rows = results.select(
-        "agent.agent_name", "answer.objection", "answer.click", "comment.click_comment"
-    ).to_dicts()
+    try:
+        rows = results.select(
+            "agent.agent_name", "answer.objection", "answer.click", "comment.click_comment"
+        ).to_dicts()
+    except Exception:  # noqa: BLE001  all model calls failed, columns missing
+        rows = []
 
     answers = []
     for row in rows:
@@ -270,7 +290,12 @@ def _edsl_panel(lead: dict, personas: list[dict]) -> dict:
         )
     objections = [a["objection"] for a in answers if a["objection"]]
     if not objections:
-        raise RuntimeError("The panel returned no objections.")
+        raise RuntimeError(
+            f"The panel returned no objections. Cause: {_first_edsl_error(results)} | "
+            f"PANEL_MODEL={os.getenv('PANEL_MODEL')}, PANEL_SERVICE={os.getenv('PANEL_SERVICE')}, "
+            f"PANEL_LOCAL_INFERENCE={os.getenv('PANEL_LOCAL_INFERENCE')}, "
+            f"DEEPSEEK_API_KEY={'set' if os.getenv('DEEPSEEK_API_KEY') else 'missing'}"
+        )
 
     # One more job: pick the most common objection, then rewrite once (piped).
     q_top = QuestionFreeText(
