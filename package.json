@@ -9,6 +9,7 @@
     "lint": "eslint",
     "seed": "tsx scripts/seed.ts",
     "mock:db": "node scripts/mock-supabase.mjs",
+    "check": "node scripts/check-keys.mjs",
     "panel": "python panel/panel.py",
     "panel:mock": "python panel/panel.py --mock"
   },

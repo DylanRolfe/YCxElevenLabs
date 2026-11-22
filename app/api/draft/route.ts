@@ -6,6 +6,7 @@ import { after, NextResponse } from "next/server";
 import { getLead, updateLead } from "@/lib/supabase-server";
 import { triggerRehearsal } from "../rehearse/maritime";
 import { cannedEmail, draftWithClaude } from "./claude";
+import { draftWithDeepSeek } from "./deepseek";
 
 export const maxDuration = 60;
 
@@ -20,8 +21,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Lead not found" }, { status: 404 });
     }
 
-    const mock = !process.env.ANTHROPIC_API_KEY;
-    const email = mock ? cannedEmail(lead) : await draftWithClaude(lead);
+    const mock = !process.env.DEEPSEEK_API_KEY && !process.env.ANTHROPIC_API_KEY;
+    const email = process.env.DEEPSEEK_API_KEY
+      ? await draftWithDeepSeek(lead)
+      : process.env.ANTHROPIC_API_KEY
+        ? await draftWithClaude(lead)
+        : cannedEmail(lead);
 
     const updated = await updateLead(leadId, {
       email_subject: email.subject,

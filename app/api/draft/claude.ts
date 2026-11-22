@@ -13,7 +13,7 @@ const EmailSchema = z.object({
 
 export type DraftedEmail = z.infer<typeof EmailSchema>;
 
-const SYSTEM = `You write cold outreach emails for a solo business owner.
+export const SYSTEM = `You write cold outreach emails for a solo business owner.
 
 Rules:
 - Under 120 words in the body. Plain text, no markdown, no emojis.
@@ -26,6 +26,19 @@ Rules:
   prices, customers, numbers or guarantees.
 - Start with a greeting using the contact's first name. Do not add a signature;
   the sender name is appended automatically.`;
+
+export function userPrompt(lead: Lead): string {
+  return [
+    `Seller: ${lead.seller_name ?? "Unknown"}`,
+    `Seller pitch: ${lead.seller_pitch ?? "Not provided"}`,
+    "",
+    `Prospect company: ${lead.company ?? "Unknown"}`,
+    `Contact: ${lead.contact_name ?? "Unknown"} (${lead.contact_title ?? "role unknown"})`,
+    `About the company: ${lead.company_summary ?? "No details"}`,
+    "",
+    "Write the email subject and body.",
+  ].join("\n");
+}
 
 export async function draftWithClaude(lead: Lead): Promise<DraftedEmail> {
   const client = new Anthropic();
@@ -44,16 +57,7 @@ export async function draftWithClaude(lead: Lead): Promise<DraftedEmail> {
     messages: [
       {
         role: "user",
-        content: [
-          `Seller: ${lead.seller_name ?? "Unknown"}`,
-          `Seller pitch: ${lead.seller_pitch ?? "Not provided"}`,
-          "",
-          `Prospect company: ${lead.company ?? "Unknown"}`,
-          `Contact: ${lead.contact_name ?? "Unknown"} (${lead.contact_title ?? "role unknown"})`,
-          `About the company: ${lead.company_summary ?? "No details"}`,
-          "",
-          "Write the email subject and body.",
-        ].join("\n"),
+        content: userPrompt(lead),
       },
     ],
   });
@@ -66,7 +70,7 @@ export async function draftWithClaude(lead: Lead): Promise<DraftedEmail> {
   return response.parsed_output;
 }
 
-// Mock mode: used when ANTHROPIC_API_KEY is missing.
+// Mock mode: used when neither DEEPSEEK_API_KEY nor ANTHROPIC_API_KEY is set.
 export function cannedEmail(lead: Lead): DraftedEmail {
   const first = (lead.contact_name ?? "there").split(" ")[0];
   const seller = lead.seller_name || "our team";
