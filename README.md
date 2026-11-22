@@ -91,7 +91,8 @@ Vercel.
 
 | Integration | Set | Mock behaviour when unset | Notes |
 |---|---|---|---|
-| Claude (draft) | `ANTHROPIC_API_KEY` | Canned email | Model `claude-opus-5-5`, structured output. [app/api/draft/claude.ts](app/api/draft/claude.ts) |
+| DeepSeek (draft) | `DEEPSEEK_API_KEY` | Falls back to Claude, then a canned email | Model `DEEPSEEK_MODEL` (default `deepseek-chat`), JSON mode. [app/api/draft/deepseek.ts](app/api/draft/deepseek.ts) |
+| Claude (draft fallback) | `ANTHROPIC_API_KEY` | Canned email | Used only when `DEEPSEEK_API_KEY` is empty. Model `claude-opus-5-5`, structured output. [app/api/draft/claude.ts](app/api/draft/claude.ts) |
 | Fiber AI (find) | `FIBER_API_KEY` | Three fake leads | **Response parsing is unverified.** See the TODO in [app/api/find/fiber.ts](app/api/find/fiber.ts); set `FIBER_DEBUG=1` to log the raw response. Email reveal costs credits. |
 | Gmail (send) | `GMAIL_USER`, `GMAIL_APP_PASSWORD` | Email logged, lead still moves to `sent` | App password from Google Account > Security > 2-Step Verification > App passwords. |
 | ElevenLabs (talk) | `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`, `ELEVENLABS_WEBHOOK_SECRET` | **Simulate call** button | Agent setup: [docs/elevenlabs-agent.md](docs/elevenlabs-agent.md). Setting the webhook secret disables Simulate call. |
