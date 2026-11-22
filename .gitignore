@@ -51,3 +51,6 @@ __pycache__/
 
 # local preview config
 .claude/
+
+# ElevenLabs agent settings saved by npm run agent:sync
+scripts/.agent-backup-*.json

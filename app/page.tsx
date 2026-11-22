@@ -167,15 +167,19 @@ export default function Dashboard() {
     e.preventDefault();
     setError(null);
     setAdding(true);
-    const { error } = await supabase.from("leads").insert({
-      ...form,
-      status: "found",
-      seller_name: sellerName,
-      seller_pitch: leadPitch,
-    });
+    // Server-side insert: the live DB's anon key can read leads, not add them.
+    const res = await fetch("/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, sellerName, sellerPitch: leadPitch }),
+    }).catch((e: unknown) => e);
     setAdding(false);
-    if (error) {
-      setError(`Could not add lead: ${error.message}`);
+    if (!(res instanceof Response) || !res.ok) {
+      const body =
+        res instanceof Response ? await res.json().catch(() => ({})) : {};
+      const message =
+        body.error ?? (res instanceof Error ? res.message : "request failed");
+      setError(`Could not add lead: ${message}`);
       return;
     }
     setForm(EMPTY_LEAD);

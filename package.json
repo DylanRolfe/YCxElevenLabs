@@ -11,7 +11,9 @@
     "mock:db": "node scripts/mock-supabase.mjs",
     "check": "node scripts/check-keys.mjs",
     "panel": "python panel/panel.py",
-    "panel:mock": "python panel/panel.py --mock"
+    "panel:mock": "python panel/panel.py --mock",
+    "agent:check": "node scripts/sync-agent.mjs",
+    "agent:sync": "node scripts/sync-agent.mjs --apply"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.12.0",
