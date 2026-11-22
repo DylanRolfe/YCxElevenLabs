@@ -3,7 +3,7 @@
 // rehearsal (Maritime when configured, otherwise the local panel script).
 
 import { after, NextResponse } from "next/server";
-import { getLead, updateLead } from "@/lib/supabase-server";
+import { getLead, serverSupabase } from "@/lib/supabase-server";
 import { triggerRehearsal } from "../rehearse/maritime";
 import { cannedEmail, draftWithClaude } from "./claude";
 import { draftWithDeepSeek } from "./deepseek";
@@ -20,6 +20,12 @@ export async function POST(req: Request) {
     if (!lead) {
       return NextResponse.json({ error: "Lead not found" }, { status: 404 });
     }
+    if (lead.status !== "found") {
+      return NextResponse.json(
+        { error: `Lead is "${lead.status}", expected "found".` },
+        { status: 409 },
+      );
+    }
 
     const mock = !process.env.DEEPSEEK_API_KEY && !process.env.ANTHROPIC_API_KEY;
     const email = process.env.DEEPSEEK_API_KEY
@@ -28,11 +34,21 @@ export async function POST(req: Request) {
         ? await draftWithClaude(lead)
         : cannedEmail(lead);
 
-    const updated = await updateLead(leadId, {
-      email_subject: email.subject,
-      email_draft: email.body,
-      status: "drafted",
-    });
+    // Only write if it is still `found`, so two clicks can't clobber each other.
+    const { data: updated, error: upErr } = await serverSupabase()
+      .from("leads")
+      .update({ email_subject: email.subject, email_draft: email.body, status: "drafted" })
+      .eq("id", leadId)
+      .eq("status", "found")
+      .select("*")
+      .maybeSingle();
+    if (upErr) throw new Error(upErr.message);
+    if (!updated) {
+      return NextResponse.json(
+        { error: "Lead changed while drafting; refresh and try again." },
+        { status: 409 },
+      );
+    }
 
     // Runs after the response is sent so the Draft button stays fast.
     after(async () => {
