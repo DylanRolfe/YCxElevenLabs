@@ -58,18 +58,52 @@ function str(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
+// First non-empty value among dotted paths (field names vary across endpoints).
+function pick(obj: unknown, paths: string[]): unknown {
+  for (const p of paths) {
+    const v = p
+      .split(".")
+      .reduce<unknown>((x, k) => (x == null ? undefined : (x as Json)[k]), obj);
+    if (v != null && v !== "") return v;
+  }
+  return null;
+}
+
+// Strings, or objects shaped like { name } / { value }.
+function text(v: unknown): string | null {
+  if (v && typeof v === "object") return text(pick(v, ["name", "value"]));
+  return str(v);
+}
+
 function toLead(item: Json): NewLead & { linkedinUrl: string | null } {
-  const job = (item.current_job ?? {}) as Json;
-  const first = str(item.first_name);
-  const last = str(item.last_name);
+  const job = (pick(item, [
+    "current_job",
+    "currentJob",
+    "currentPosition",
+    "experiences.0",
+    "positions.0",
+  ]) ?? {}) as Json;
+  const co = (pick(item, ["current_company", "currentCompany", "company"]) ?? {}) as Json;
+  const first = text(pick(item, ["first_name", "firstName"]));
+  const last = text(pick(item, ["last_name", "lastName"]));
   return {
     contact_name:
-      str(item.name) ?? ([first, last].filter(Boolean).join(" ") || null),
-    contact_title: str(job.title) ?? str(item.headline),
-    company: str(job.company_name) ?? str(item.company_name),
-    company_summary: str(item.headline),
+      text(pick(item, ["name", "full_name", "fullName"])) ??
+      ([first, last].filter(Boolean).join(" ") || null),
+    contact_title:
+      text(pick(job, ["title"])) ??
+      text(pick(item, ["title", "currentTitle", "jobTitle", "headline"])),
+    company:
+      text(pick(job, ["company_name", "companyName", "company"])) ??
+      text(pick(co, ["name", "company_name", "companyName"])) ??
+      text(pick(item, ["company_name", "companyName"])),
+    company_summary:
+      text(pick(co, ["description", "short_description", "tagline", "about"])) ??
+      text(pick(item, ["headline"])),
     contact_email: null,
-    linkedinUrl: str(item.url) ?? str(item.linkedin_url),
+    linkedinUrl: text(
+      pick(item, ["url", "linkedin_url", "linkedinUrl", "linkedInUrl", "profile_url"]),
+    ),
   };
 }
 
@@ -84,12 +118,15 @@ async function revealWorkEmail(linkedinUrl: string): Promise<string | null> {
           getPersonalEmails: false,
           getPhoneNumbers: false,
         },
+        patience: "LOW",
       },
       25_000,
     );
     const profile = ((data.output ?? {}) as Json).profile as Json | undefined;
     const emails = (profile?.emails ?? []) as { email?: string; status?: string }[];
-    const best = emails.find((e) => e.status === "valid") ?? emails[0];
+    const best =
+      emails.find((e) => e.status === "valid") ??
+      emails.find((e) => e.status !== "invalid");
     return best?.email ?? null;
   } catch (e) {
     console.warn("[fiber] email reveal failed:", e);
