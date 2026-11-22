@@ -37,9 +37,20 @@ function buildBody(lead: Lead, origin: string): string {
 export async function POST(req: Request) {
   let claimedId: string | null = null;
   try {
-    const { leadId } = await req.json();
+    const { leadId, approve } = await req.json();
     if (!leadId) {
       return NextResponse.json({ error: "leadId is required" }, { status: 400 });
+    }
+
+    // The "Approve and send" click: move rehearsed -> approved server-side.
+    // The browser's anon key can read leads but not update them on the live DB.
+    if (approve === true) {
+      const { error: approveErr } = await serverSupabase()
+        .from("leads")
+        .update({ status: "approved" })
+        .eq("id", leadId)
+        .eq("status", "rehearsed");
+      if (approveErr) throw new Error(approveErr.message);
     }
 
     const user = process.env.GMAIL_USER;

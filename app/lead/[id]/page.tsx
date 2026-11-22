@@ -106,13 +106,7 @@ export default function LeadDetail() {
   // The only path to sending: a human clicks this button.
   const approveAndSend = () =>
     run("send", async () => {
-      const { error } = await supabase
-        .from("leads")
-        .update({ status: "approved" })
-        .eq("id", id)
-        .eq("status", "rehearsed");
-      if (error) throw new Error(error.message);
-      await postJson("/api/send", { leadId: id });
+      await postJson("/api/send", { leadId: id, approve: true });
     });
 
   const sendNow = () =>
