@@ -74,7 +74,7 @@ export function SimulateCall({ lead }: { lead: Lead }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted">
         Mock mode: no ElevenLabs agent is configured, so this simulates a call.
       </p>
       <ErrorNote message={error} />
@@ -88,10 +88,10 @@ export function SimulateCall({ lead }: { lead: Lead }) {
 
       {state === "done" && (
         <>
-          <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
+          <p className="rounded-lg border border-brand-tint bg-brand-soft p-3 text-sm text-brand">
             Simulated call saved. The lead card is now on the dashboard.
           </p>
-          <ol className="space-y-2 rounded-xl border border-slate-200 bg-white p-3">
+          <ol className="space-y-2 rounded-xl border border-line bg-white p-3">
             {TRANSCRIPT.map((line, i) => (
               <li key={i} className="text-sm">
                 <span className="font-medium">

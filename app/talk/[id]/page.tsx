@@ -31,7 +31,7 @@ export default function TalkPage() {
 
   if (error) {
     return (
-      <main className="mx-auto max-w-md p-6 text-center text-sm text-slate-600">
+      <main className="mx-auto max-w-md p-6 text-center text-sm text-muted">
         {error}
       </main>
     );
@@ -46,9 +46,9 @@ export default function TalkPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-5">
       <header className="pt-4">
-        <p className="text-sm text-slate-500">AI assistant for</p>
-        <h1 className="text-2xl font-bold">{seller}</h1>
-        <p className="mt-2 text-slate-700">
+        <p className="text-sm text-muted">AI assistant for</p>
+        <h1 className="text-3xl font-semibold tracking-tight">{seller}</h1>
+        <p className="mt-2 text-ink">
           {firstName ? `Hi ${firstName}. ` : ""}Ask anything about how {seller}{" "}
           could help {lead.company || "your business"}. It takes about a minute.
         </p>

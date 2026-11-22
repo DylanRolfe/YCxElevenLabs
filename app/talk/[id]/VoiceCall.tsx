@@ -71,7 +71,7 @@ function Call({ agentId, lead }: { agentId: string; lead: Lead }) {
       )}
       {status === "connected" && (
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-muted">
             {isSpeaking ? "Assistant is speaking..." : "Listening..."}
           </p>
           <Button variant="secondary" onClick={() => conversation.endSession()}>
@@ -81,14 +81,14 @@ function Call({ agentId, lead }: { agentId: string; lead: Lead }) {
       )}
 
       {ended && status === "disconnected" && (
-        <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
+        <p className="rounded-lg border border-brand-tint bg-brand-soft p-3 text-sm text-brand">
           Thanks for talking. A summary is on its way to{" "}
           {lead.seller_name || "the team"}.
         </p>
       )}
 
       {lines.length > 0 && (
-        <ol className="space-y-2 rounded-xl border border-slate-200 bg-white p-3">
+        <ol className="space-y-2 rounded-xl border border-line bg-white p-3">
           {lines.map((line, i) => (
             <li key={i} className="text-sm">
               <span className="font-medium">

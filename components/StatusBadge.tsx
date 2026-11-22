@@ -1,22 +1,39 @@
+import { Pill } from "@/components/ui";
 import type { LeadStatus } from "@/lib/types";
 
-const STYLES: Record<LeadStatus, string> = {
-  found: "bg-slate-100 text-slate-700",
-  drafted: "bg-amber-100 text-amber-800",
-  rehearsed: "bg-violet-100 text-violet-800",
-  approved: "bg-blue-100 text-blue-800",
-  sent: "bg-cyan-100 text-cyan-800",
-  talked: "bg-emerald-100 text-emerald-800",
+export const STATUS_LABEL: Record<LeadStatus, string> = {
+  found: "Found",
+  drafted: "Drafted",
+  rehearsed: "Needs approval",
+  approved: "Approved",
+  sent: "Sent",
+  talked: "Talked",
+};
+
+// What the owner (or the pipeline) does next for a lead in each status.
+export const NEXT_STEP: Record<LeadStatus, { label: string; yours: boolean }> =
+  {
+    found: { label: "Draft email", yours: true },
+    drafted: { label: "Rehearse on buyer panel", yours: false },
+    rehearsed: { label: "Review and approve", yours: true },
+    approved: { label: "Send email", yours: true },
+    sent: { label: "Waiting for the call", yours: false },
+    talked: { label: "Read lead card", yours: true },
+  };
+
+const TONE: Record<LeadStatus, "neutral" | "brand" | "solid"> = {
+  found: "neutral",
+  drafted: "neutral",
+  rehearsed: "brand",
+  approved: "brand",
+  sent: "neutral",
+  talked: "solid",
 };
 
 export function StatusBadge({ status }: { status: LeadStatus }) {
   return (
-    <span
-      className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
-        STYLES[status] ?? "bg-slate-100 text-slate-700"
-      }`}
-    >
-      {status}
-    </span>
+    <Pill tone={TONE[status] ?? "neutral"}>
+      {STATUS_LABEL[status] ?? status}
+    </Pill>
   );
 }
