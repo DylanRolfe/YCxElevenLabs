@@ -88,13 +88,13 @@ export function SimulateCall({ lead }: { lead: Lead }) {
 
       {state === "done" && (
         <>
-          <p className="rounded-lg border border-brand-tint bg-brand-soft p-3 text-sm text-brand">
+          <p className="rounded-lg border border-line bg-raised p-3 text-sm text-ink">
             Simulated call saved. The lead card is now on the dashboard.
           </p>
-          <ol className="space-y-2 rounded-xl border border-line bg-white p-3">
+          <ol className="space-y-2 rounded-xl border border-line bg-panel p-3">
             {TRANSCRIPT.map((line, i) => (
               <li key={i} className="text-sm">
-                <span className="font-medium">
+                <span className="text-muted">
                   {line.role === "user" ? "You" : "Assistant"}:
                 </span>{" "}
                 {line.message}

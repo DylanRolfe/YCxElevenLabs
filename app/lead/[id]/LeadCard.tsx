@@ -18,16 +18,16 @@ export function LeadCard({ lead }: { lead: Lead }) {
       title="Lead card"
       subtitle="What the call surfaced, next to what the rehearsal predicted."
       action={<Pill tone="solid">Call complete</Pill>}
-      className="border-brand/40"
+      className="border-ink/30"
     >
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg bg-canvas p-3">
+        <div className="rounded-lg border border-line p-3">
           <Eyebrow>Predicted objection (rehearsal)</Eyebrow>
           <p className="mt-1 text-sm">
             {lead.predicted_objection || "No prediction"}
           </p>
         </div>
-        <div className="rounded-lg bg-brand-soft p-3">
+        <div className="rounded-lg bg-raised p-3">
           <Eyebrow>Real objection (call)</Eyebrow>
           <p className="mt-1 text-sm">
             {lead.call_objection || "Not captured"}

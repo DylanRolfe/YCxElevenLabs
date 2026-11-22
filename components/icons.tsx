@@ -22,6 +22,13 @@ function Icon({ size = 16, children, ...props }: IconProps) {
   );
 }
 
+// Wordmark glyph: five voice-level bars.
+export const LogoMark = (p: IconProps) => (
+  <Icon strokeWidth={2.5} {...p}>
+    <path d="M4 10v4M8 6v12M12 9v6M16 4v16M20 10v4" />
+  </Icon>
+);
+
 export const GridIcon = (p: IconProps) => (
   <Icon {...p}>
     <rect x="3" y="3" width="7" height="7" rx="1.5" />

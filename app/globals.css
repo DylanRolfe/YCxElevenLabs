@@ -1,19 +1,46 @@
 @import "tailwindcss";
 
-/* Design tokens from the Figma workspace design: warm off-white canvas,
-   hairline borders, one sage-green accent. */
+/* Design tokens. One dark system merged from four references:
+   near-black canvas and dot-matrix texture, hairline-framed panels,
+   white pill actions, and a faint warm glow at the top of the page.
+   White is the primary; amber (signal) only marks "this needs you". */
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
 
-  --color-canvas: #f7f7f4;
-  --color-sidebar: #f1f1ec;
-  --color-line: #e6e6e0;
-  --color-ink: #1d1d1b;
-  --color-muted: #6b6b65;
-  --color-faint: #9b9b94;
-  --color-brand: #3f5d46;
-  --color-brand-strong: #334c39;
-  --color-brand-soft: #eef2ec;
-  --color-brand-tint: #e2e9df;
+  --color-canvas: #0a0a0b;
+  --color-panel: #111112;
+  --color-raised: #19191b;
+  --color-line: #252527;
+  --color-ink: #f4f4f1;
+  --color-muted: #a2a29c;
+  --color-faint: #7b7b76;
+  --color-signal: #f2a35c;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-image: radial-gradient(
+      ellipse 90% 420px at 50% -120px,
+      rgb(150 110 60 / 0.16),
+      transparent
+    );
+    background-repeat: no-repeat;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(244 244 241 / 0.75);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: #f4f4f1;
+    color: #0a0a0b;
+  }
 }

@@ -5,7 +5,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { DotWave } from "@/components/DotWave";
 import {
+  ArrowRight,
   CheckIcon,
   ChevronRight,
   DocIcon,
@@ -162,36 +164,8 @@ export default function Dashboard() {
       workspace={sellerName}
     >
       <div className="mx-auto max-w-6xl space-y-6">
-        <header className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              Your sales coworker
-            </h1>
-            <p className="mt-1.5 text-sm text-muted">
-              It rehearses on a simulated buyer before it emails the real one.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => setShowAdd((s) => !s)}
-              aria-expanded={showAdd}
-            >
-              {showAdd ? "Close" : "Add a lead"}
-            </Button>
-            <Button
-              onClick={() => {
-                targetRef.current?.scrollIntoView({ block: "center" });
-                targetRef.current?.focus();
-              }}
-            >
-              <PlusIcon size={15} /> Find leads
-            </Button>
-          </div>
-        </header>
-
         {!supabaseConfigured && (
-          <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <p className="rounded-lg border border-signal/25 bg-signal/[0.07] px-3 py-2 text-sm text-ink">
             Supabase is not configured. Copy <code>.env.example</code> to{" "}
             <code>.env.local</code>, set the Supabase URL and anon key, then
             restart <code>npm run dev</code>.
@@ -199,25 +173,47 @@ export default function Dashboard() {
         )}
         <ErrorNote message={error} />
 
-        <section className="flex flex-wrap items-center gap-4 rounded-xl border border-brand-tint bg-brand-soft px-5 py-4">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-brand-tint bg-white text-brand">
-            <SparkleIcon size={18} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-lg font-medium tracking-tight">{headline}</p>
-            <p className="mt-0.5 text-sm text-muted">{subline}</p>
+        {/* Hero: what the rep has done, over a dot-matrix voice waveform. */}
+        <section className="relative overflow-hidden rounded-3xl border border-line bg-black">
+          <DotWave className="pointer-events-none absolute top-0 right-0 h-[calc(100%-7rem)] w-full text-ink opacity-30 sm:w-[68%] sm:opacity-100" />
+          <div className="relative px-6 pt-10 pb-12 sm:px-10 sm:pt-14 sm:pb-16">
+            <p className="flex items-center gap-2 text-xs text-muted">
+              <span className="h-1.5 w-1.5 rounded-full bg-signal" />
+              Your sales coworker, updating live
+            </p>
+            <h1 className="mt-6 max-w-3xl text-4xl leading-[1.04] font-medium tracking-[-0.04em] text-balance sm:text-5xl lg:text-6xl">
+              {headline}
+            </h1>
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">
+              {subline}
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Button
+                className="px-5 py-2.5"
+                onClick={() => {
+                  targetRef.current?.scrollIntoView({ block: "center" });
+                  targetRef.current?.focus();
+                }}
+              >
+                Find leads <ArrowRight size={15} />
+              </Button>
+              <Button
+                variant="secondary"
+                className="px-5 py-2.5"
+                onClick={() => setShowAdd((s) => !s)}
+                aria-expanded={showAdd}
+              >
+                <PlusIcon size={15} /> {showAdd ? "Close" : "Add a lead"}
+              </Button>
+            </div>
           </div>
-          <p className="hidden text-[10px] font-semibold tracking-wider text-muted uppercase sm:block">
-            Live · updates every 3s
-          </p>
+          <dl className="relative grid grid-cols-2 gap-px border-t border-line bg-line lg:grid-cols-4">
+            <Stat label="Companies found" value={leads.length} note="In your pipeline" />
+            <Stat label="Ready for approval" value={review} note="Rehearsed, waiting on you" />
+            <Stat label="Emails sent" value={sent} note="Each with a talk link" />
+            <Stat label="Calls completed" value={talked} note="Lead cards ready" />
+          </dl>
         </section>
-
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Stat label="Companies found" value={leads.length} note="In your pipeline" />
-          <Stat label="Ready for approval" value={review} note="Rehearsed, waiting on you" />
-          <Stat label="Emails sent" value={sent} note="Each with a talk link" />
-          <Stat label="Calls completed" value={talked} note="Lead cards ready" />
-        </div>
 
         {showAdd && (
           <Card
@@ -290,29 +286,33 @@ export default function Dashboard() {
         )}
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-          <Card
+          <section
             id="leads"
-            className="scroll-mt-6 !p-0"
-            title={<span className="block px-5 pt-5">Companies in view</span>}
+            className="scroll-mt-20 overflow-hidden rounded-2xl border border-line bg-panel"
           >
-            <div className="flex gap-5 overflow-x-auto overflow-y-hidden border-b border-line px-5 text-sm">
-              {FILTERS.map((f) => {
-                const n = f.match ? count(leads, f.match) : leads.length;
-                const on = f.key === filter;
-                return (
-                  <button
-                    key={f.key}
-                    onClick={() => setFilter(f.key)}
-                    className={`-mb-px border-b-2 pb-2.5 whitespace-nowrap transition ${
-                      on
-                        ? "border-brand font-medium text-ink"
-                        : "border-transparent text-muted hover:text-ink"
-                    }`}
-                  >
-                    {f.label} {n}
-                  </button>
-                );
-              })}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
+              <h2 className="px-1 text-[15px] font-medium">Companies in view</h2>
+              <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-full border border-line bg-canvas p-1 text-xs">
+                {FILTERS.map((f) => {
+                  const n = f.match ? count(leads, f.match) : leads.length;
+                  const on = f.key === filter;
+                  return (
+                    <button
+                      key={f.key}
+                      onClick={() => setFilter(f.key)}
+                      aria-pressed={on}
+                      className={`rounded-full px-3 py-1 font-medium whitespace-nowrap transition-colors ${
+                        on ? "bg-raised text-ink" : "text-muted hover:text-ink"
+                      }`}
+                    >
+                      {f.label}{" "}
+                      <span className={on ? "text-muted" : "text-faint"}>
+                        {n}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {visible.length === 0 ? (
@@ -327,7 +327,7 @@ export default function Dashboard() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[560px] text-sm">
                   <thead>
-                    <tr className="bg-canvas text-left text-xs text-muted">
+                    <tr className="text-left text-xs text-faint">
                       <th className="px-5 py-2.5 font-medium">Company</th>
                       <th className="px-3 py-2.5 font-medium">Status</th>
                       <th className="px-3 py-2.5 font-medium">Contact</th>
@@ -343,8 +343,8 @@ export default function Dashboard() {
                       return (
                         <tr
                           key={lead.id}
-                          className={`group transition hover:bg-canvas ${
-                            highlight ? "bg-brand-soft/60" : ""
+                          className={`group transition-colors hover:bg-raised ${
+                            highlight ? "bg-signal/[0.05]" : ""
                           }`}
                         >
                           <td className="px-5 py-3">
@@ -372,7 +372,7 @@ export default function Dashboard() {
                           </td>
                           <td
                             className={`px-3 py-3 whitespace-nowrap ${
-                              next.yours ? "font-medium text-brand" : "text-muted"
+                              next.yours ? "font-medium text-ink" : "text-muted"
                             }`}
                           >
                             {next.label}
@@ -393,7 +393,7 @@ export default function Dashboard() {
                 </table>
               </div>
             )}
-          </Card>
+          </section>
 
           <div className="space-y-6">
             <Card
@@ -459,7 +459,7 @@ export default function Dashboard() {
                   "Prospects are told they are talking to an AI.",
                 ].map((t) => (
                   <li key={t} className="flex gap-2.5">
-                    <CheckIcon size={15} className="mt-0.5 shrink-0 text-brand" />
+                    <CheckIcon size={15} className="mt-0.5 shrink-0 text-muted" />
                     {t}
                   </li>
                 ))}
@@ -487,12 +487,14 @@ function Stat({
   note: string;
 }) {
   return (
-    <div className="rounded-xl border border-line bg-white px-4 py-3.5">
-      <p className="text-xs text-muted">{label}</p>
-      <p className="mt-1.5 flex flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-3">
-        <span className="text-2xl font-semibold tracking-tight">{value}</span>
-        <span className="text-xs text-muted">{note}</span>
-      </p>
+    <div className="bg-black px-6 py-5 sm:px-10 lg:px-6 lg:first:pl-10">
+      <dt className="text-xs text-muted">{label}</dt>
+      <dd className="mt-2">
+        <span className="block text-3xl font-medium tracking-[-0.03em] tabular-nums">
+          {value}
+        </span>
+        <span className="mt-1 block text-xs text-faint">{note}</span>
+      </dd>
     </div>
   );
 }

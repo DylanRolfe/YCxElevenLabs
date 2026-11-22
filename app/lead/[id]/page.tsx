@@ -8,7 +8,6 @@ import { QRCodeSVG } from "qrcode.react";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import {
-  ArrowLeft,
   CheckIcon,
   ExternalIcon,
   MailIcon,
@@ -16,7 +15,14 @@ import {
   ShieldIcon,
 } from "@/components/icons";
 import { StatusBadge } from "@/components/StatusBadge";
-import { Button, Card, ErrorNote, Eyebrow, Pill } from "@/components/ui";
+import {
+  Button,
+  buttonClass,
+  Card,
+  ErrorNote,
+  Eyebrow,
+  Pill,
+} from "@/components/ui";
 import { talkLink } from "@/lib/links";
 import { supabase } from "@/lib/supabase";
 import { STATUSES, type Lead } from "@/lib/types";
@@ -125,7 +131,7 @@ export default function LeadDetail() {
       <AppShell crumbs={crumbs} active="leads">
         <div className="mx-auto max-w-6xl">
           <p>Lead not found.</p>
-          <Link href="/" className="text-sm text-brand underline">
+          <Link href="/" className="text-sm text-ink underline">
             Back to dashboard
           </Link>
         </div>
@@ -167,29 +173,24 @@ export default function LeadDetail() {
   return (
     <AppShell crumbs={crumbs} active="leads" workspace={lead.seller_name}>
       <div className="mx-auto max-w-6xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-ink"
-        >
-          <ArrowLeft size={14} /> All leads
-        </Link>
-
-        <header className="mt-4 mb-6">
+        <header className="mb-6">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-3xl font-semibold tracking-tight">
+            <h1 className="text-4xl leading-[1.05] font-medium tracking-[-0.035em]">
               {lead.company}
             </h1>
             <StatusBadge status={lead.status} />
           </div>
           {lead.company_summary && (
-            <p className="mt-1.5 text-sm text-muted">{lead.company_summary}</p>
+            <p className="mt-2 max-w-2xl text-sm text-muted">
+              {lead.company_summary}
+            </p>
           )}
         </header>
 
         <div className="space-y-3">
           <ErrorNote message={error} />
           {note && (
-            <p className="rounded-lg border border-brand-tint bg-brand-soft px-3 py-2 text-sm text-brand">
+            <p className="rounded-lg border border-line bg-raised px-3 py-2 text-sm text-ink">
               {note}
             </p>
           )}
@@ -208,9 +209,9 @@ export default function LeadDetail() {
                       <span
                         className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-medium ${
                           done
-                            ? "border-brand bg-brand text-white"
+                            ? "border-ink bg-ink text-canvas"
                             : current
-                              ? "border-brand bg-brand-soft text-brand"
+                              ? "border-muted bg-raised text-ink"
                               : "border-line text-faint"
                         }`}
                       >
@@ -237,7 +238,7 @@ export default function LeadDetail() {
                 title="Rehearsal, not guesswork"
                 subtitle="How the simulated buyer panel reacted to the draft."
                 action={
-                  <Pill tone="brand">
+                  <Pill tone="signal">
                     {lead.panel_objections.length}{" "}
                     {lead.panel_objections.length === 1 ? "persona" : "personas"}
                   </Pill>
@@ -252,7 +253,7 @@ export default function LeadDetail() {
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <p className="text-xs text-muted">{answer.persona}</p>
-                          <Pill tone={answer.would_click === "Yes" ? "brand" : "neutral"}>
+                          <Pill tone={answer.would_click === "Yes" ? "solid" : "neutral"}>
                             Would click: {answer.would_click}
                           </Pill>
                         </div>
@@ -269,7 +270,7 @@ export default function LeadDetail() {
                   ))}
                 </ol>
                 {lead.predicted_objection && (
-                  <div className="mt-3 rounded-lg bg-canvas p-3">
+                  <div className="mt-3 rounded-lg bg-raised p-3">
                     <Eyebrow>Predicted objection</Eyebrow>
                     <p className="mt-1 text-sm">{lead.predicted_objection}</p>
                   </div>
@@ -289,17 +290,18 @@ export default function LeadDetail() {
               icon={<PhoneIcon />}
             >
               <div className="flex items-center gap-4">
-                <div className="shrink-0 rounded-lg border border-line bg-white p-2">
-                  <QRCodeSVG value={link} size={96} fgColor="#1d1d1b" />
+                {/* QR stays dark on white so phone cameras can read it. */}
+                <div className="shrink-0 rounded-lg bg-white p-2">
+                  <QRCodeSVG value={link} size={96} fgColor="#0a0a0b" />
                 </div>
                 <a
                   href={link}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-w-0 items-start gap-1.5 text-sm break-all text-brand hover:underline"
+                  className="inline-flex min-w-0 items-start gap-2 rounded-lg border border-line bg-raised px-3 py-2 font-mono text-xs break-all text-ink hover:border-faint"
                 >
                   {link}
-                  <ExternalIcon size={14} className="mt-0.5 shrink-0" />
+                  <ExternalIcon size={14} className="shrink-0 text-muted" />
                 </a>
               </div>
             </Card>
@@ -307,10 +309,10 @@ export default function LeadDetail() {
 
           {/* Right column: contact, call outcome, email, approval */}
           <div className="space-y-6">
-            <section className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-line bg-white p-5">
+            <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line bg-panel p-5">
               <div className="min-w-0">
                 <Eyebrow>Decision-maker</Eyebrow>
-                <p className="mt-1.5 text-lg font-semibold">
+                <p className="mt-1.5 text-lg font-medium tracking-tight">
                   {lead.contact_name || "Unknown contact"}
                 </p>
                 <p className="text-xs text-muted">
@@ -343,7 +345,7 @@ export default function LeadDetail() {
                   isSent ? (
                     <Pill tone="neutral">Sent</Pill>
                   ) : lead.status === "rehearsed" ? (
-                    <Pill tone="brand">Needs approval</Pill>
+                    <Pill tone="signal">Needs approval</Pill>
                   ) : null
                 }
               >
@@ -360,7 +362,7 @@ export default function LeadDetail() {
                   {email}
                 </p>
                 {lead.email_final && lead.email_draft && (
-                  <details className="mt-4 rounded-lg bg-canvas p-3">
+                  <details className="mt-4 rounded-lg bg-raised p-3">
                     <summary className="cursor-pointer text-xs font-medium text-muted">
                       Show the original draft
                     </summary>
@@ -382,8 +384,8 @@ export default function LeadDetail() {
             )}
 
             {!isSent && (
-              <section className="flex gap-3 rounded-xl border border-brand-tint bg-brand-soft p-4">
-                <ShieldIcon size={18} className="mt-0.5 shrink-0 text-brand" />
+              <section className="flex gap-3 rounded-2xl border border-signal/25 bg-signal/[0.07] p-4">
+                <ShieldIcon size={18} className="mt-0.5 shrink-0 text-signal" />
                 <div>
                   <p className="text-sm font-medium">
                     Only your approval sends this email.
@@ -405,7 +407,7 @@ export default function LeadDetail() {
           <div className="flex gap-2">
             <Link
               href="/"
-              className="inline-flex items-center rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium hover:bg-canvas"
+              className={`${buttonClass.base} ${buttonClass.secondary}`}
             >
               Back to leads
             </Link>

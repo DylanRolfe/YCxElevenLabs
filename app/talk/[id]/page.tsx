@@ -37,24 +37,28 @@ export default function TalkPage() {
     );
   }
   if (!lead) {
-    return <main className="mx-auto max-w-md p-6 text-sm">Loading...</main>;
+    return <main className="mx-auto max-w-md p-6 text-center text-sm text-muted">
+        Loading...
+      </main>;
   }
 
   const seller = lead.seller_name || "the team";
   const firstName = (lead.contact_name || "").split(" ")[0];
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-4 p-5">
-      <header className="pt-4">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col gap-5 px-5 py-8">
+      <header className="pt-6 text-center">
         <p className="text-sm text-muted">AI assistant for</p>
-        <h1 className="text-3xl font-semibold tracking-tight">{seller}</h1>
-        <p className="mt-2 text-ink">
+        <h1 className="mt-1 text-4xl leading-[1.05] font-medium tracking-[-0.035em] text-balance">
+          {seller}
+        </h1>
+        <p className="mt-4 text-muted">
           {firstName ? `Hi ${firstName}. ` : ""}Ask anything about how {seller}{" "}
           could help {lead.company || "your business"}. It takes about a minute.
         </p>
       </header>
 
-      <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+      <p className="rounded-xl border border-signal/25 bg-signal/[0.07] p-3 text-sm text-ink">
         You will be talking to an <strong>AI assistant</strong>, not a person.
         The conversation is <strong>recorded</strong> and a summary is shared
         with {seller}.

@@ -71,7 +71,8 @@ function Call({ agentId, lead }: { agentId: string; lead: Lead }) {
       )}
       {status === "connected" && (
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-muted">
+          <p className="flex items-center gap-2 text-sm text-muted">
+            <span className="h-1.5 w-1.5 rounded-full bg-signal" />
             {isSpeaking ? "Assistant is speaking..." : "Listening..."}
           </p>
           <Button variant="secondary" onClick={() => conversation.endSession()}>
@@ -81,17 +82,17 @@ function Call({ agentId, lead }: { agentId: string; lead: Lead }) {
       )}
 
       {ended && status === "disconnected" && (
-        <p className="rounded-lg border border-brand-tint bg-brand-soft p-3 text-sm text-brand">
+        <p className="rounded-lg border border-line bg-raised p-3 text-sm text-ink">
           Thanks for talking. A summary is on its way to{" "}
           {lead.seller_name || "the team"}.
         </p>
       )}
 
       {lines.length > 0 && (
-        <ol className="space-y-2 rounded-xl border border-line bg-white p-3">
+        <ol className="space-y-2 rounded-xl border border-line bg-panel p-3">
           {lines.map((line, i) => (
             <li key={i} className="text-sm">
-              <span className="font-medium">
+              <span className="text-muted">
                 {line.role === "user" ? "You" : "Assistant"}:
               </span>{" "}
               {line.message}

@@ -21,11 +21,11 @@ export const NEXT_STEP: Record<LeadStatus, { label: string; yours: boolean }> =
     talked: { label: "Read lead card", yours: true },
   };
 
-const TONE: Record<LeadStatus, "neutral" | "brand" | "solid"> = {
+const TONE: Record<LeadStatus, "neutral" | "signal" | "solid"> = {
   found: "neutral",
   drafted: "neutral",
-  rehearsed: "brand",
-  approved: "brand",
+  rehearsed: "signal",
+  approved: "signal",
   sent: "neutral",
   talked: "solid",
 };
