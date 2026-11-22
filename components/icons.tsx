@@ -101,6 +101,12 @@ export const DocIcon = (p: IconProps) => (
   </Icon>
 );
 
+export const UploadIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 16V4M7 9l5-5 5 5M5 20h14" />
+  </Icon>
+);
+
 export const ExternalIcon = (p: IconProps) => (
   <Icon {...p}>
     <rect x="4" y="4" width="16" height="16" rx="2" />

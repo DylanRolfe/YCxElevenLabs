@@ -66,6 +66,13 @@ these six at session start:
 | `prospect_company` | `company` |
 | `company_summary` | `company_summary` |
 
+`seller_pitch` can be long. When the owner uploads a company brief on the
+dashboard (PDF or text, read by `/api/brief`), its text is appended to the
+pitch under a "Company brief (uploaded document):" line, up to 20,000
+characters (`lib/brief.ts`). That is how the agent gets the detail to answer
+questions on a call; no extra variable or prompt change is needed. Leads
+created before the upload keep the pitch they were created with.
+
 In the dashboard, give every variable a **placeholder value** (for example
 `seller_name = Northside Bookkeeping`, `lead_id = test`). Dashboard test calls
 do not receive runtime values, so without placeholders the agent reads

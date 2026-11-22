@@ -14,9 +14,11 @@ import {
   PlusIcon,
   ShieldIcon,
   SparkleIcon,
+  UploadIcon,
 } from "@/components/icons";
 import { NEXT_STEP, StatusBadge } from "@/components/StatusBadge";
 import { Button, Card, ErrorNote, Field, inputClass } from "@/components/ui";
+import { pitchWithBrief } from "@/lib/brief";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 import type { Lead, LeadStatus } from "@/lib/types";
 
@@ -39,6 +41,13 @@ const FILTERS: { key: string; label: string; match: LeadStatus[] | null }[] = [
   { key: "talked", label: "Talked", match: ["talked"] },
 ];
 
+type Brief = {
+  fileName: string;
+  pages: number | null;
+  truncated: boolean;
+  text: string;
+};
+
 function count(leads: Lead[], statuses: LeadStatus[]) {
   return leads.filter((l) => statuses.includes(l.status)).length;
 }
@@ -55,7 +64,11 @@ export default function Dashboard() {
   const [showAdd, setShowAdd] = useState(false);
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState<string | null>(null);
+  const [brief, setBrief] = useState<Brief | null>(null);
+  const [briefBusy, setBriefBusy] = useState(false);
+  const [briefError, setBriefError] = useState<string | null>(null);
   const targetRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // Seller brief lives in localStorage and is copied onto each new lead.
   useEffect(() => {
@@ -63,16 +76,47 @@ export default function Dashboard() {
       const saved = JSON.parse(localStorage.getItem(SELLER_KEY) || "{}");
       setSellerName(saved.name || "");
       setSellerPitch(saved.pitch || "");
+      setBrief(saved.brief?.text ? saved.brief : null);
     } catch {}
   }, []);
 
-  function saveSeller(name: string, pitch: string) {
+  function saveSeller(name: string, pitch: string, doc: Brief | null = brief) {
     setSellerName(name);
     setSellerPitch(pitch);
+    setBrief(doc);
     try {
-      localStorage.setItem(SELLER_KEY, JSON.stringify({ name, pitch }));
+      localStorage.setItem(
+        SELLER_KEY,
+        JSON.stringify({ name, pitch, brief: doc }),
+      );
     } catch {}
   }
+
+  // Reads the text out of the uploaded file; it then travels with the pitch.
+  async function uploadBrief(file: File) {
+    setBriefError(null);
+    setBriefBusy(true);
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      const res = await fetch("/api/brief", { method: "POST", body: data });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error || "Could not read that file.");
+      saveSeller(sellerName, sellerPitch, {
+        fileName: body.fileName,
+        pages: body.pages,
+        truncated: body.truncated,
+        text: body.text,
+      });
+    } catch (e) {
+      setBriefError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBriefBusy(false);
+    }
+  }
+
+  // What gets copied onto a new lead: the pitch, then the brief if there is one.
+  const leadPitch = pitchWithBrief(sellerPitch, brief?.text ?? "");
 
   const loadLeads = useCallback(async () => {
     const { data, error } = await supabase
@@ -103,7 +147,11 @@ export default function Dashboard() {
       const res = await fetch("/api/find", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetType, sellerName, sellerPitch }),
+        body: JSON.stringify({
+          targetType,
+          sellerName,
+          sellerPitch: leadPitch,
+        }),
       });
       const body = await res.json();
       if (!res.ok) throw new Error(body.error || "Find failed");
@@ -123,7 +171,7 @@ export default function Dashboard() {
       ...form,
       status: "found",
       seller_name: sellerName,
-      seller_pitch: sellerPitch,
+      seller_pitch: leadPitch,
     });
     setAdding(false);
     if (error) {
@@ -419,6 +467,81 @@ export default function Dashboard() {
                     placeholder="We do monthly bookkeeping for cafes and restaurants, flat fee, books closed by the 5th."
                   />
                 </Field>
+
+                <div>
+                  <p className="mb-1.5 text-xs font-medium text-muted">
+                    Company brief for calls
+                  </p>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".pdf,.txt,.md,application/pdf,text/plain"
+                    className="sr-only"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) uploadBrief(file);
+                    }}
+                  />
+                  {brief ? (
+                    <div className="rounded-lg border border-line bg-raised p-3">
+                      <p className="flex items-center gap-2 text-sm">
+                        <DocIcon className="shrink-0 text-muted" />
+                        <span className="truncate">{brief.fileName}</span>
+                      </p>
+                      <p className="mt-1 text-xs text-faint">
+                        {brief.pages
+                          ? `${brief.pages} ${brief.pages === 1 ? "page" : "pages"}, `
+                          : ""}
+                        {brief.text.length.toLocaleString()} characters
+                        {brief.truncated ? " (start of the file only)" : ""}
+                      </p>
+                      <div className="mt-3 flex gap-2">
+                        <Button
+                          variant="secondary"
+                          className="px-3 py-1 text-xs"
+                          disabled={briefBusy}
+                          onClick={() => fileRef.current?.click()}
+                        >
+                          {briefBusy ? "Reading..." : "Replace"}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          className="px-3 py-1 text-xs"
+                          disabled={briefBusy}
+                          onClick={() => {
+                            setBriefError(null);
+                            saveSeller(sellerName, sellerPitch, null);
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      className="w-full"
+                      disabled={briefBusy}
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      <UploadIcon size={15} />
+                      {briefBusy ? "Reading..." : "Upload brief (PDF)"}
+                    </Button>
+                  )}
+                  {briefError && (
+                    <p role="alert" className="mt-1.5 text-xs text-red-300">
+                      {briefError}
+                    </p>
+                  )}
+                  <p className="mt-1.5 text-xs leading-relaxed text-faint">
+                    {brief
+                      ? "Your AI rep answers call questions from this. It is added to leads you create from now on."
+                      : "Prices, services, hours, FAQs: your AI rep answers call questions from it. PDF or text, up to 10 MB."}
+                  </p>
+                </div>
               </div>
             </Card>
 

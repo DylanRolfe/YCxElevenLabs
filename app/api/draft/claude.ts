@@ -3,6 +3,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
+import { shortPitch } from "@/lib/brief";
 import { TALK_LINK_PLACEHOLDER } from "@/lib/links";
 import type { Lead } from "@/lib/types";
 
@@ -75,7 +76,9 @@ export async function draftWithClaude(lead: Lead): Promise<DraftedEmail> {
 export function cannedEmail(lead: Lead): DraftedEmail {
   const first = (lead.contact_name ?? "there").split(" ")[0];
   const seller = lead.seller_name || "our team";
-  const pitch = lead.seller_pitch || "We help small businesses save time.";
+  // Just the owner's pitch: the uploaded brief is too long to paste in.
+  const pitch =
+    shortPitch(lead.seller_pitch ?? "") || "We help small businesses save time.";
   return {
     subject: `Quick idea for ${lead.company ?? "your business"}`,
     body: [
