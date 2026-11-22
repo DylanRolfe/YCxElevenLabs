@@ -1,0 +1,40 @@
+{
+  "name": "rehearsal-rep",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "seed": "tsx scripts/seed.ts",
+    "mock:db": "node scripts/mock-supabase.mjs",
+    "panel": "python panel/panel.py",
+    "panel:mock": "python panel/panel.py --mock"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0",
+    "@elevenlabs/elevenlabs-js": "^2.79.0",
+    "@elevenlabs/react": "^1.23.1",
+    "@supabase/supabase-js": "^2.119.2",
+    "next": "16.4.6",
+    "nodemailer": "^10.6.1",
+    "qrcode.react": "^4.2.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
+    "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^18.0.10",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.6",
+    "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  }
+}
