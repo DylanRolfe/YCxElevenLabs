@@ -3,7 +3,8 @@
 /* Design tokens. One dark system merged from four references:
    near-black canvas and dot-matrix texture, hairline-framed panels,
    white pill actions, and a faint warm glow at the top of the page.
-   White is the primary; amber (signal) only marks "this needs you". */
+   White is the primary action color; amber (signal) only marks
+   "this needs you". */
 @theme {
   --font-sans: var(--font-geist), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;

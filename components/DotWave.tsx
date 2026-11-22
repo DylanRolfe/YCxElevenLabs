@@ -8,7 +8,8 @@ const MID = (ROWS - 1) / 2;
 
 // Height of the waveform at a column, in rows from the centre line.
 function amplitude(col: number) {
-  const fade = Math.sin(Math.PI * Math.min(1, (col / COLS) * 1.15));
+  // Quiet on the left, where the headline sits; full height by mid-panel.
+  const fade = Math.min(1, (col / COLS) * 1.5) ** 1.5;
   const wave = Math.abs(
     Math.sin(col * 0.42) * 0.55 +
       Math.sin(col * 0.17 + 1.3) * 0.3 +

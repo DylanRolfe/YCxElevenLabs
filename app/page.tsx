@@ -175,7 +175,7 @@ export default function Dashboard() {
 
         {/* Hero: what the rep has done, over a dot-matrix voice waveform. */}
         <section className="relative overflow-hidden rounded-3xl border border-line bg-black">
-          <DotWave className="pointer-events-none absolute top-0 right-0 h-[calc(100%-7rem)] w-full text-ink opacity-30 sm:w-[68%] sm:opacity-100" />
+          <DotWave className="pointer-events-none absolute top-0 right-0 h-[calc(100%-7rem)] hidden w-[68%] text-ink sm:block" />
           <div className="relative px-6 pt-10 pb-12 sm:px-10 sm:pt-14 sm:pb-16">
             <p className="flex items-center gap-2 text-xs text-muted">
               <span className="h-1.5 w-1.5 rounded-full bg-signal" />
@@ -292,7 +292,7 @@ export default function Dashboard() {
           >
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3">
               <h2 className="px-1 text-[15px] font-medium">Companies in view</h2>
-              <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-full border border-line bg-canvas p-1 text-xs">
+              <div className="flex max-w-full gap-0.5 overflow-x-auto rounded-full [scrollbar-width:none] border border-line bg-canvas p-1 text-xs">
                 {FILTERS.map((f) => {
                   const n = f.match ? count(leads, f.match) : leads.length;
                   const on = f.key === filter;
